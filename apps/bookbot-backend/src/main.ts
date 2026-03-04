@@ -3,7 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app/app.module';
@@ -15,6 +15,13 @@ async function bootstrap() {
   app.useLogger(app.get(PinoLogger));
 
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
