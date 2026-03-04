@@ -12,6 +12,8 @@ Co se týče devops a CI/CD, použil bych Terraform pro nastavení infrastruktur
 K moniotringu, logovánání a altertování bych použil například NewRelic (případně Splunk), se kterými mám zkušenosti z dřívjejších projektů.
 Určitě by se ale dalo použít více technologií.
 
+Chtěl bych ještě dodat, že nejsem fanoušek používáním monorepa za všech okolnosti, ale v tomto případě mi to příšlo fajn, aby to bylo po kupě.
+
 Děkuji
 
 # Bookbot – KB Case Study Monorepo
