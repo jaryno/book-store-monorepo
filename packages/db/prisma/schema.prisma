@@ -1,0 +1,133 @@
+// ============================================================
+// Datasource & Generator
+// ============================================================
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/client"
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum Language {
+  CS // čeština
+  EN // angličtina
+  DE // němčina
+  IT // italština
+  FR // francouzština
+  SK // slovenština
+  ES // španělština
+  RU // ruština
+  PL // polština
+}
+
+enum Binding {
+  SOFT     // měkká
+  HARD     // pevná
+  STAPLED  // sešitová
+  RING     // kroužková
+  LEPORELO
+  FLEX     // flexovazba
+  OTHER    // jiná
+}
+
+enum BookCondition {
+  VERY_GOOD // Velmi dobrá
+  GOOD      // Dobrá
+  DAMAGED   // Poškozená
+}
+
+enum CopyStatus {
+  AVAILABLE
+  SOLD
+  RESERVED
+}
+
+// ============================================================
+// Models
+// ============================================================
+
+model Book {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  name        String
+  description String?
+  editions    BookEdition[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("books")
+}
+
+
+model Author {
+  id       Int                     @id @default(autoincrement())
+  name     String
+  slug     String                  @unique
+  editions AuthorsOnBookEditions[]
+
+  @@map("authors")
+}
+
+model Publisher {
+  id       Int           @id @default(autoincrement())
+  name     String        @unique
+  editions BookEdition[]
+
+  @@map("publishers")
+}
+
+model BookEdition {
+  id                 Int                     @id @default(autoincrement())
+  bookId             Int
+  book               Book                    @relation(fields: [bookId], references: [id])
+  publisherId        Int?
+  publisher          Publisher?              @relation(fields: [publisherId], references: [id])
+  language           Language
+  binding            Binding
+  yearPublished      Int?
+  pageCount          Int?
+  readingTimeMinutes Int?
+  description        String?
+  isbn               String?
+  coverImageUrl      String?
+  authors            AuthorsOnBookEditions[]
+  items              BookItem[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@index([bookId])
+  @@index([language])
+  @@index([publisherId])
+  @@map("book_editions")
+}
+
+model AuthorsOnBookEditions {
+  bookEditionId Int
+  authorId      Int
+  bookEdition   BookEdition @relation(fields: [bookEditionId], references: [id])
+  author        Author      @relation(fields: [authorId], references: [id])
+
+  @@id([bookEditionId, authorId])
+  @@map("authors_on_book_editions")
+}
+
+model BookItem {
+  id            Int           @id @default(autoincrement())
+  bookEditionId Int
+  bookEdition   BookEdition   @relation(fields: [bookEditionId], references: [id])
+  condition     BookCondition
+  price         Decimal       @db.Decimal(10, 2)
+  status        CopyStatus    @default(AVAILABLE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([bookEditionId, status])
+  @@map("book_items")
+}

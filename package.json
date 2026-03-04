@@ -1,8 +1,15 @@
 {
-  "name": "@org/source",
+  "name": "@bookbot/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "db:reset": "npx prisma migrate reset --force --schema=packages/db/prisma/schema.prisma && npx tsx packages/db/prisma/seed.ts",
+    "db:seed": "npx tsx packages/db/prisma/seed.ts",
+    "db:migrate": "npx prisma migrate dev --schema=packages/db/prisma/schema.prisma"
+  },
+  "prisma": {
+    "seed": "npx tsx packages/db/prisma/seed.ts"
+  },
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -22,6 +29,7 @@
     "@swc/jest": "~0.2.38",
     "@types/jest": "^30.0.0",
     "@types/node": "20.19.9",
+    "@types/pg": "^8.11.11",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "jest": "^30.0.2",
@@ -29,9 +37,11 @@
     "jest-util": "^30.0.2",
     "nx": "22.5.1",
     "prettier": "^2.6.2",
+    "prisma": "^7.4.2",
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
     "webpack-cli": "^5.1.4"
@@ -42,9 +52,13 @@
   ],
   "dependencies": {
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
     "axios": "^1.6.0",
+    "pg": "^8.13.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0"
   }

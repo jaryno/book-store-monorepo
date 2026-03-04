@@ -1,5 +1,5 @@
 {
-  "name": "@org/bookbot-backend",
+  "name": "@bookbot/bookbot-backend",
   "version": "0.0.1",
   "private": true,
   "nx": {
@@ -63,15 +63,15 @@
           "build"
         ],
         "options": {
-          "buildTarget": "@org/bookbot-backend:build",
+          "buildTarget": "@bookbot/bookbot-backend:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "@org/bookbot-backend:build:development"
+            "buildTarget": "@bookbot/bookbot-backend:build:development"
           },
           "production": {
-            "buildTarget": "@org/bookbot-backend:build:production"
+            "buildTarget": "@bookbot/bookbot-backend:build:production"
           }
         }
       },
@@ -86,6 +86,8 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@bookbot/db": "*",
+    "@prisma/client": "^7.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0"

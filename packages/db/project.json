@@ -1,0 +1,52 @@
+{
+  "name": "@org/db",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/db/src",
+  "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma generate --schema=packages/db/prisma/schema.prisma",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate dev --schema=packages/db/prisma/schema.prisma",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "migrate:deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate deploy --schema=packages/db/prisma/schema.prisma",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "migrate:reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate reset --schema=packages/db/prisma/schema.prisma",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsx packages/db/prisma/seed.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "studio": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "command": "npx prisma studio --schema=packages/db/prisma/schema.prisma",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}
+

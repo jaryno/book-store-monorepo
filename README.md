@@ -1,3 +1,84 @@
+# Bookbot – KB Case Study Monorepo
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL 15+ (lokálně nebo Docker)
+- npm 10+
+
+### První spuštění (pořadí kroků je důležité)
+
+**1. Instalace závislostí**
+```sh
+npm install
+```
+
+**2. Nastavení prostředí**
+```sh
+cp .env.example .env
+# Upravte DATABASE_URL v .env dle vaší PostgreSQL konfigurace
+# Např.: DATABASE_URL=postgresql://postgres:password@localhost:5432/bookbot
+```
+
+**3. Vytvoření DB schématu přes migrace**
+```sh
+npm run nx -- run db:migrate
+# Prisma se zeptá na název migrace, např.: "init"
+```
+
+**4. Vygenerování Prisma klienta**
+```sh
+npm run nx -- run db:generate
+# Vygeneruje TypeScript typy do packages/db/src/generated/client/
+```
+
+**5. Naplnění DB seed daty**
+```sh
+npm run nx -- run db:seed
+# Vytvoří autory, nakladatelství, tituly, edice a kopie knih
+```
+
+**6. Spuštění NestJS API**
+```sh
+npm run nx -- run bookbot-backend:serve
+# API běží na http://localhost:3000/api
+```
+
+### Užitečné příkazy
+
+| Příkaz | Popis |
+|---|---|
+| `npm run nx -- run db:migrate` | Spustit Prisma migrace (dev) |
+| `npm run nx -- run db:migrate:deploy` | Spustit migrace v produkci |
+| `npm run nx -- run db:migrate:reset` | Reset DB + znovu spustit migrace |
+| `npm run nx -- run db:generate` | Vygenerovat Prisma client |
+| `npm run nx -- run db:seed` | Naplnit DB seed daty |
+| `npm run nx -- run db:studio` | Otevřít Prisma Studio (GUI pro DB) |
+| `npm run nx -- run bookbot-backend:serve` | Spustit API v dev módu |
+| `npm run nx -- run bookbot-backend:build` | Build API |
+
+### Struktura projektu
+
+```
+kb-case-study-monorepo/
+  apps/
+    bookbot-backend/        ← NestJS API (port 3000)
+  packages/
+    db/                     ← Sdílená Prisma knihovna (@org/db)
+      prisma/
+        schema.prisma       ← DB schéma (modely, enums)
+        seed.ts             ← Seed script s reálnými daty
+      src/
+        generated/client/   ← Prisma client (gitignored, generovat přes db:generate)
+        prisma.service.ts   ← NestJS injectable PrismaService
+        prisma.module.ts    ← NestJS global PrismaModule
+        index.ts            ← Barrel export
+```
+
+---
+
 # New Nx Repository
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>

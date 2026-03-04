@@ -1,10 +1,10 @@
 {
-  "name": "@org/bookbot-backend-e2e",
+  "name": "@bookbot/bookbot-backend-e2e",
   "version": "0.0.1",
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@org/bookbot-backend"
+      "@bookbot/bookbot-backend"
     ],
     "targets": {
       "e2e": {
@@ -17,8 +17,8 @@
           "passWithNoTests": true
         },
         "dependsOn": [
-          "@org/bookbot-backend:build",
-          "@org/bookbot-backend:serve"
+          "@bookbot/bookbot-backend:build",
+          "@bookbot/bookbot-backend:serve"
         ]
       }
     }
