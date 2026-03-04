@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { BookFiltersResponse } from '@bookbot/book-utils';
 
 interface FiltersProps {
@@ -8,6 +9,7 @@ interface FiltersProps {
 }
 
 export default function Filters({ filters }: FiltersProps) {
+  const t = useTranslations('filters');
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -50,13 +52,13 @@ export default function Filters({ filters }: FiltersProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-lg">Filtry</h2>
+        <h2 className="font-bold text-lg">{t('title')}</h2>
         {searchParams.toString() && (
           <button
             onClick={clearAll}
             className="text-xs text-blue-600 hover:underline"
           >
-            Vymazat vše
+            {t('clearAll')}
           </button>
         )}
       </div>
@@ -68,12 +70,12 @@ export default function Filters({ filters }: FiltersProps) {
             checked={searchParams.get('inStock') === 'true'}
             onChange={toggleInStock}
           />
-          Pouze skladem
+          {t('inStockOnly')}
         </label>
       </div>
 
       <FilterSection
-        title="Jazyk"
+        title={t('language')}
         options={filters.languages}
         filterKey="languages"
         isActive={isActive}
@@ -81,7 +83,7 @@ export default function Filters({ filters }: FiltersProps) {
       />
 
       <FilterSection
-        title="Vazba"
+        title={t('binding')}
         options={filters.bindings}
         filterKey="bindings"
         isActive={isActive}
@@ -89,7 +91,7 @@ export default function Filters({ filters }: FiltersProps) {
       />
 
       <FilterSection
-        title="Stav"
+        title={t('condition')}
         options={filters.conditions}
         filterKey="conditions"
         isActive={isActive}
@@ -98,7 +100,7 @@ export default function Filters({ filters }: FiltersProps) {
 
       {filters.authors.length > 0 && (
         <div>
-          <h3 className="font-semibold text-sm mb-2">Autoři</h3>
+          <h3 className="font-semibold text-sm mb-2">{t('authors')}</h3>
           {filters.authors.map((author) => (
             <label
               key={author.id}
@@ -118,7 +120,7 @@ export default function Filters({ filters }: FiltersProps) {
 
       {filters.publishers.length > 0 && (
         <div>
-          <h3 className="font-semibold text-sm mb-2">Nakladatelství</h3>
+          <h3 className="font-semibold text-sm mb-2">{t('publishers')}</h3>
           {filters.publishers.map((pub) => (
             <label
               key={pub.id}

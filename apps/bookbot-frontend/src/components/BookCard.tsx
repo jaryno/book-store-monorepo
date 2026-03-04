@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { BookListItemResponse } from '@bookbot/book-utils';
 
 export default function BookCard({ book }: { book: BookListItemResponse }) {
+  const t = useTranslations('books');
+
   return (
     <Link
       href={`/books/${book.slug}`}
@@ -18,8 +23,8 @@ export default function BookCard({ book }: { book: BookListItemResponse }) {
         {book.minPrice !== null ? (
           <span className="font-bold">
             {book.minPrice === book.maxPrice
-              ? `${book.minPrice} Kč`
-              : `${book.minPrice}–${book.maxPrice} Kč`}
+              ? t('priceSingle', { price: book.minPrice })
+              : t('priceRange', { min: book.minPrice, max: book.maxPrice! })}
           </span>
         ) : (
           <span className="text-gray-400">—</span>
@@ -31,7 +36,7 @@ export default function BookCard({ book }: { book: BookListItemResponse }) {
               : 'bg-red-100 text-red-500'
           }`}
         >
-          {book.inStock ? `Skladem (${book.availableCount})` : 'Vyprodáno'}
+          {book.inStock ? t('inStockCount', { count: book.availableCount }) : t('soldOut')}
         </span>
       </div>
     </Link>

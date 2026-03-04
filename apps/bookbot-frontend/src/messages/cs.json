@@ -1,0 +1,34 @@
+{
+  "common": {
+    "loading": "Načítání...",
+    "currency": "Kč",
+    "backToList": "← Zpět na seznam"
+  },
+  "books": {
+    "title": "BookBot",
+    "totalFound": "{count} knih nalezeno",
+    "noBooksFound": "Žádné knihy nenalezeny.",
+    "notFound": "Kniha nenalezena.",
+    "fetchError": "Chyba při načítání knih.",
+    "inStock": "Skladem",
+    "inStockCount": "Skladem ({count})",
+    "soldOut": "Vyprodáno",
+    "editions": "Vydání",
+    "publisher": "Nakladatelství: {name}",
+    "pages": "{count} stran",
+    "readingTime": "~{hours} hod čtení",
+    "priceRange": "{min}–{max} Kč",
+    "priceSingle": "{price} Kč"
+  },
+  "filters": {
+    "title": "Filtry",
+    "clearAll": "Vymazat vše",
+    "inStockOnly": "Pouze skladem",
+    "language": "Jazyk",
+    "binding": "Vazba",
+    "condition": "Stav",
+    "authors": "Autoři",
+    "publishers": "Nakladatelství"
+  }
+}
+

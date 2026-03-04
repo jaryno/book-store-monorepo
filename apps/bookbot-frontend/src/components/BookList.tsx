@@ -1,11 +1,16 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import type { BookListItemResponse } from '@bookbot/book-utils';
 import BookCard from './BookCard';
 
 export default function BookList({ books }: { books: BookListItemResponse[] }) {
+  const t = useTranslations('books');
+
   if (books.length === 0) {
     return (
       <p className="text-center text-gray-500 py-12">
-        Žádné knihy nenalezeny.
+        {t('noBooksFound')}
       </p>
     );
   }
