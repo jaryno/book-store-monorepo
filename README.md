@@ -1,186 +1,218 @@
 # Bookbot – KB Case Study Monorepo
 
+NX monorepo s **NestJS** backendem, **Next.js** frontendem, sdílenými knihovnami a Prisma ORM.
+
+## 🏗️ Architektura
+
+```
+kb-case-study-monorepo/
+├── apps/
+│   ├── bookbot-backend/          ← NestJS API (port 8080)
+│   └── bookbot-frontend/         ← Next.js App Router (port 3000)
+├── packages/
+│   ├── book-utils/               ← Sdílené typy, mappery, ordering (@bookbot/book-utils)
+│   ├── constants/                ← Sdílené enumy — Language, Binding, Condition (@bookbot/constants)
+│   └── db/                       ← Prisma schéma, migrace, seed, PrismaModule (@bookbot/db)
+├── docker-compose.yml            ← PostgreSQL 17 + Redis 7
+└── .env.example
+```
+
+### Technologie
+
+| Vrstva | Technologie |
+|---|---|
+| **Frontend** | Next.js 16, React 19, Tailwind CSS, React Query, next-intl |
+| **Backend** | NestJS, Prisma ORM, nestjs-pino, class-validator |
+| **Databáze** | PostgreSQL 17, Redis 7 (cache filtrů) |
+| **Monorepo** | Nx, TypeScript project references |
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 20+
-- PostgreSQL 15+ (lokálně nebo Docker)
 - npm 10+
+- Docker & Docker Compose (pro PostgreSQL a Redis)
 
-### První spuštění (pořadí kroků je důležité)
+### 1. Instalace závislostí
 
-**1. Instalace závislostí**
 ```sh
 npm install
 ```
 
-**2. Nastavení prostředí**
+### 2. Nastavení prostředí
+
 ```sh
 cp .env.example .env
-# Upravte DATABASE_URL v .env dle vaší PostgreSQL konfigurace
-# Např.: DATABASE_URL=postgresql://postgres:password@localhost:5432/bookbot
 ```
 
-**3. Vytvoření DB schématu přes migrace**
+Výchozí `.env` hodnoty:
+
+| Proměnná | Výchozí hodnota | Popis |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://bookbot:bookbot@localhost:5432/bookbot` | PostgreSQL connection string |
+| `REDIS_URL` | `redis://localhost:6379` | Redis connection string |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8080/api` | URL backendu pro frontend |
+| `PORT` | `8080` | Port backendu (volitelné) |
+| `CORS_ORIGIN` | `http://localhost:3000` | Povolený CORS origin (volitelné) |
+
+### 3. Spuštění infrastruktury (PostgreSQL + Redis)
+
 ```sh
-npm run nx -- run db:migrate
-# Prisma se zeptá na název migrace, např.: "init"
+docker compose up -d
 ```
 
-**4. Vygenerování Prisma klienta**
+### 4. Vytvoření DB schématu a seed dat
+
 ```sh
-npm run nx -- run db:generate
-# Vygeneruje TypeScript typy do packages/db/src/generated/client/
+npm run db:migrate
+npm run db:seed
 ```
 
-**5. Naplnění DB seed daty**
+### 5. Spuštění aplikací
+
 ```sh
-npm run nx -- run db:seed
-# Vytvoří autory, nakladatelství, tituly, edice a kopie knih
-```
+# Backend + Frontend najednou
+npm run start:all
 
-**6. Spuštění NestJS API**
-```sh
-npm run nx -- run bookbot-backend:serve
-# API běží na http://localhost:3000/api
-```
-
-### Užitečné příkazy
-
-| Příkaz | Popis |
-|---|---|
-| `npm run nx -- run db:migrate` | Spustit Prisma migrace (dev) |
-| `npm run nx -- run db:migrate:deploy` | Spustit migrace v produkci |
-| `npm run nx -- run db:migrate:reset` | Reset DB + znovu spustit migrace |
-| `npm run nx -- run db:generate` | Vygenerovat Prisma client |
-| `npm run nx -- run db:seed` | Naplnit DB seed daty |
-| `npm run nx -- run db:studio` | Otevřít Prisma Studio (GUI pro DB) |
-| `npm run nx -- run bookbot-backend:serve` | Spustit API v dev módu |
-| `npm run nx -- run bookbot-backend:build` | Build API |
-
-### Struktura projektu
-
-```
-kb-case-study-monorepo/
-  apps/
-    bookbot-backend/        ← NestJS API (port 3000)
-  packages/
-    db/                     ← Sdílená Prisma knihovna (@bookbot/db)
-      prisma/
-        schema.prisma       ← DB schéma (modely, enums)
-        seed.ts             ← Seed script s reálnými daty
-      src/
-        generated/client/   ← Prisma client (gitignored, generovat přes db:generate)
-        prisma.service.ts   ← NestJS injectable PrismaService
-        prisma.module.ts    ← NestJS global PrismaModule
-        index.ts            ← Barrel export
+# Nebo jednotlivě:
+npm run start:api    # NestJS API → http://localhost:8080/api
+npm run start:web    # Next.js   → http://localhost:3000
 ```
 
 ---
 
-# New Nx Repository
+## 📡 API Endpoints
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+### Book Listing
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+```
+GET /api/books
+```
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-## Try the full Nx platform
-🚀 If you haven't connected to Nx Cloud yet, [complete your setup here](https://cloud.nx.app/setup/connect-workspace/guide). Get faster builds with remote caching, distributed task execution, and self-healing CI. [See how your workspace can benefit](#nx-cloud).
-## Generate a library
+Query parametry (všechny volitelné):
+
+| Parametr | Typ | Příklad | Popis |
+|---|---|---|---|
+| `page` | number | `2` | Číslo stránky (výchozí 1) |
+| `languages` | CSV string | `CS,EN` | Filtr jazyků |
+| `bindings` | CSV string | `SOFT,HARD` | Filtr vazby |
+| `conditions` | CSV string | `VERY_GOOD,GOOD` | Filtr stavu |
+| `authorIds` | CSV number | `1,2` | Filtr podle ID autorů |
+| `publisherIds` | CSV number | `3,5` | Filtr podle ID nakladatelství |
+| `priceFrom` | number | `50` | Minimální cena |
+| `priceTo` | number | `200` | Maximální cena |
+| `yearFrom` | number | `2000` | Rok vydání od |
+| `yearTo` | number | `2024` | Rok vydání do |
+| `inStock` | boolean | `true` | Pouze skladem |
+
+Příklad:
 
 ```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+curl "http://localhost:8080/api/books?languages=CS,EN&inStock=true&page=1"
 ```
 
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+### Book Detail
 
 ```
-npx nx release
+GET /api/books/:slug
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+### Book Filters
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```
+GET /api/books/filters
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+Vrací dostupné filtry s počty (jazyky, vazby, stavy, top autoři, top nakladatelství, cenový a rokový rozsah). Výsledek je cachován v Redis (1 hodina).
 
-```sh
-npx nx sync:check
+---
+
+## 🎨 Frontend
+
+Next.js App Router s těmito stránkami:
+
+| Route | Popis | Rendering |
+|---|---|---|
+| `/` | Seznam knih s filtry a stránkováním | Server Component (SSR) |
+| `/books/[slug]` | Detail knihy s edicemi a položkami | Server Component (SSR) |
+
+### Komponenty
+
+```
+src/
+├── app/
+│   ├── layout.tsx          ← Root layout (next-intl, QueryProvider)
+│   ├── page.tsx            ← Listing — Server Component
+│   └── books/[slug]/
+│       └── page.tsx        ← Detail — Server Component
+├── components/
+│   ├── BookCard.tsx        ← Karta knihy (Server Component)
+│   ├── BookList.tsx        ← Grid knih (Server Component)
+│   ├── EditionCard.tsx     ← Karta edice na detail stránce
+│   ├── Filters.tsx         ← Sidebar filtry (Client Component)
+│   ├── FilterSection.tsx   ← Sekce jednoho filtru (checkbox list)
+│   ├── Pagination.tsx      ← Stránkování
+│   ├── StockBadge.tsx      ← Badge dostupnosti (pure)
+│   ├── PriceDisplay.tsx    ← Zobrazení ceny (pure)
+│   └── QueryProvider.tsx   ← React Query provider
+├── hooks/
+│   └── useBooks.ts         ← React Query hooky
+├── lib/
+│   ├── api.ts              ← Fetch funkce (books, filters, detail)
+│   └── config.ts           ← Konfigurace (API URL)
+├── i18n/
+│   └── request.ts          ← next-intl konfigurace
+└── messages/
+    └── cs.json             ← České překlady
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### Lokalizace
 
-## Nx Cloud
+Používá `next-intl`. Překlady jsou v `src/messages/cs.json`. Pro přidání nového jazyka stačí vytvořit nový soubor (např. `en.json`) a upravit `src/i18n/request.ts`.
 
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+---
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🗃️ Databázový model
 
-### Set up CI (non-Github Actions CI)
+```
+Book (titul)
+ └── BookEdition (vydání — jazyk, vazba, rok, nakladatel)
+      ├── BookItem (konkrétní výtisk — stav, cena, status)
+      └── AuthorsOnBookEditions ← → Author
 
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+Publisher (nakladatelství)
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Klíčový koncept: **Book** = abstraktní titul, **BookEdition** = konkrétní vydání (jazyk, vazba, nakladatel), **BookItem** = fyzický výtisk na skladě (stav, cena, dostupnost).
 
-## Install Nx Console
+### Enumy
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+| Enum | Hodnoty |
+|---|---|
+| `Language` | CS, EN, DE, IT, FR, SK, ES, RU, PL |
+| `Binding` | SOFT, HARD, STAPLED, RING, LEPORELO, FLEX, OTHER |
+| `BookCondition` | VERY_GOOD, GOOD, DAMAGED |
+| `CopyStatus` | AVAILABLE, SOLD, RESERVED |
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-## Useful links
+## 📋 Užitečné příkazy
 
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+| Příkaz | Popis |
+|---|---|
+| `npm run start:api` | Spustit backend (port 8080) |
+| `npm run start:web` | Spustit frontend (port 3000) |
+| `npm run start:all` | Spustit backend + frontend najednou |
+| `npm run db:migrate` | Spustit Prisma migrace |
+| `npm run db:seed` | Naplnit DB seed daty |
+| `npm run db:reset` | Reset DB + migrace + seed |
+| `npx nx build bookbot-backend` | Build backendu |
+| `npx nx build bookbot-frontend` | Build frontendu |
+| `npx nx test bookbot-backend` | Testy backendu |
+| `npx nx lint bookbot-backend` | Lint backendu |
+| `npx nx graph` | Vizualizace dependency grafu |
+| `docker compose up -d` | Spustit PostgreSQL + Redis |
+| `docker compose down` | Zastavit infrastrukturu |
