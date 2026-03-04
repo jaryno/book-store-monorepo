@@ -4,6 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start:api": "npx nx serve bookbot-backend",
+    "start:web": "npx nx dev bookbot-frontend",
+    "start:all": "npx nx run-many -t serve dev -p bookbot-backend bookbot-frontend",
     "db:reset": "npx prisma migrate reset --force --schema=packages/db/prisma/schema.prisma && npx tsx packages/db/prisma/seed.ts",
     "db:seed": "npx tsx packages/db/prisma/seed.ts",
     "db:migrate": "npx prisma migrate dev --schema=packages/db/prisma/schema.prisma"
@@ -79,6 +81,7 @@
     "@nestjs/platform-express": "^11.0.0",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
+    "@tanstack/react-query": "^5.90.21",
     "axios": "^1.6.0",
     "cache-manager": "^7.2.8",
     "cache-manager-redis-yet": "^5.1.5",
