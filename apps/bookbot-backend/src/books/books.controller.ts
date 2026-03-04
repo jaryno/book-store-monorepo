@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import type { BookDetailResponse, BookListResponse } from '@bookbot/book-utils';
+import type { BookDetailResponse, BookFiltersResponse, BookListResponse } from '@bookbot/book-utils';
 import { BooksService } from './books.service';
 import { parseListBooksQuery } from './dto/list-books.query';
 
@@ -13,6 +13,11 @@ export class BooksController {
     @Query() query: Record<string, string>,
   ): Promise<BookListResponse> {
     return this.booksService.listBooks(parseListBooksQuery(query));
+  }
+
+  @Get('filters')
+  async getFilters(): Promise<BookFiltersResponse> {
+    return this.booksService.getFilters();
   }
 
   @Get(':slug')

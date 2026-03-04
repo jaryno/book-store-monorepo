@@ -3,7 +3,9 @@ import {
   applyDefaultOrdering,
   mapToListItem,
   mapEditions,
+  mapFilters,
   type BookDetailResponse,
+  type BookFiltersResponse,
   type BookListResponse,
   type ListBooksQuery,
 } from '@bookbot/book-utils';
@@ -49,5 +51,10 @@ export class BooksService {
       editions,
       inStock,
     };
+  }
+
+  async getFilters(): Promise<BookFiltersResponse> {
+    const raw = await this.booksRepository.getFilters();
+    return mapFilters(raw);
   }
 }

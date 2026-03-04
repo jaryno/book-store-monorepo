@@ -94,3 +94,37 @@ export interface BookWithEditions {
   description: string | null;
   editions: EditionInput[];
 }
+
+export interface FilterOptionCount {
+  code: string;
+  count: number;
+}
+
+export interface FilterOptionAuthor {
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
+}
+
+export interface FilterOptionPublisher {
+  id: number;
+  name: string;
+  count: number;
+}
+
+export interface FilterRange {
+  min: number;
+  max: number;
+}
+
+export interface BookFiltersResponse {
+  languages: FilterOptionCount[];
+  bindings: FilterOptionCount[];
+  conditions: FilterOptionCount[];
+  authors: FilterOptionAuthor[];
+  publishers: FilterOptionPublisher[];
+  priceRange: FilterRange | null;
+  yearRange: FilterRange | null;
+}
+
